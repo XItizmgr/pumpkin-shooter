@@ -23,10 +23,22 @@ class Ship:
         self.y = y
         self.health = health
         self.img = None
+        self.bullet = None
+        self.coolDown = 0 
 
     def draw(self, window):
-        pygame.draw.rect(window, "red", (self.x, self.y, 50, 50))
-
+        window.blit(self.img,(self.x,self.y))
+    def get_width(self):
+        return self.get_width()
+    def get_height(self):
+        return self.get_height()
+    
+    
+class Player(Ship):
+    def __init__(self, x, y, health=100):
+        super().__init__(x, y, health)
+        self.img = SHOOTER
+        self.bullet = BULLET
 
 def main():
     run = True
@@ -35,7 +47,7 @@ def main():
     Level = 1
     Lives = 3
     main_font = pygame.font.SysFont("comicsans", 40)
-    ghost = Ship(300, 530)
+    ghost = Player(300, 530)
     ghost_vel = 5
 
     def draw():
