@@ -37,12 +37,14 @@ class Bullet:
 
     def move(self, vel):
         self.y += vel
-    def off_screen(self,height):
-        return self.y <= height and self.y >=0
-    
-    def collision(self,obj):
-        return is_collide(obj,self)
-        
+
+    def off_screen(self, height):
+        return self.y + self.img.get_height() >= 0 and self.y <= height
+
+    def collision(self, obj):
+        return is_collide(obj, self)
+
+
 class Ship:
     def __init__(self, x, y, health=100):
         self.x = x
@@ -50,11 +52,14 @@ class Ship:
         self.health = health
         self.img = None
         self.bullet_img = None
-        self.bullet = []
+        self.bullets = []
         self.coolDown = 0
+
     def shoot(self):
         if self.coolDown == 0:
-            bullet = BULLET(self.x,self.y,self.bullet_img)
+            bullet = Bullet(self.x, self.y, self.bullet_img)
+            self.bullets.append(bullet)
+            self.coolDown = 1
 
     def draw(self, window):
         window.blit(self.img, (self.x, self.y))
@@ -65,6 +70,20 @@ class Ship:
     def get_height(self):
         return self.img.get_height()
 
+    def move_bullets(self, vel):
+        self.coolDown()
+        for bullet in self.bullets[:]:
+            bullet.move(vel)
+            if not bullet.off_screen(HEIGHT):
+                self.bullets.remove(bullet)
+
+    def cooldown(self):
+        if self.coolDown > 0:
+            self.coolDown += 1
+
+        if self.coolDown >= 30:
+            self.coolDown = 0
+
 
 class Player(Ship):
     def __init__(self, x, y, health=100):
@@ -73,8 +92,6 @@ class Player(Ship):
         self.bullet = BULLET
         self.mask = pygame.mask.from_surface(self.img)
         self.health = health
-        
-        
 
 
 class Enemy(Ship):
@@ -85,18 +102,20 @@ class Enemy(Ship):
             health,
         )
         self.img = PUMPKIN
-        self.bullet = random.choice([SHULK, BULLET, BONE])
+        self.bullet_img = random.choice([SHULK, BULLET, BONE])
         self.mask = pygame.mask.from_surface(self.img)
 
     def move(self, vel):
         self.y += vel
 
-def is_collide(obj1,obj2):
+
+def is_collide(obj1, obj2):
     offset_x = obj2.x - obj1.x
     offset_y = obj2.y - obj1.y
 
-    return obj1.mask.overlay(obj2.mask ,(offset_x,offset_y)) != None
-    
+    return obj1.mask.overlap(obj2.mask, (offset_x, offset_y)) is not None
+
+
 def main():
     run = True
     FPS = 60
@@ -113,6 +132,10 @@ def main():
     enemies = []
     lost = False
     lost_count = 0
+    
+    
+    player_bullet_vel = -7
+    enemy_bullet_vel = 4
 
     def draw():
         WINDOW.blit(BG, (0, 0))
