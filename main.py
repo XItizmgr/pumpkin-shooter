@@ -25,14 +25,36 @@ BG = pygame.transform.scale(
 )
 
 
+class Bullet:
+    def __init__(self, x, y, img):
+        self.x = x
+        self.y = y
+        self.img = img
+        self.mask = pygame.mask.from_surface(self.img)
+
+    def draw(self, window):
+        window.blit(self.img, (self.x, self.y))
+
+    def move(self, vel):
+        self.y += vel
+    def off_screen(self,height):
+        return self.y <= height and self.y >=0
+    
+    def collision(self,obj):
+        return is_collide(obj,self)
+        
 class Ship:
     def __init__(self, x, y, health=100):
         self.x = x
         self.y = y
         self.health = health
         self.img = None
-        self.bullet = None
+        self.bullet_img = None
+        self.bullet = []
         self.coolDown = 0
+    def shoot(self):
+        if self.coolDown == 0:
+            bullet = BULLET(self.x,self.y,self.bullet_img)
 
     def draw(self, window):
         window.blit(self.img, (self.x, self.y))
@@ -51,6 +73,8 @@ class Player(Ship):
         self.bullet = BULLET
         self.mask = pygame.mask.from_surface(self.img)
         self.health = health
+        
+        
 
 
 class Enemy(Ship):
@@ -67,7 +91,12 @@ class Enemy(Ship):
     def move(self, vel):
         self.y += vel
 
+def is_collide(obj1,obj2):
+    offset_x = obj2.x - obj1.x
+    offset_y = obj2.y - obj1.y
 
+    return obj1.mask.overlay(obj2.mask ,(offset_x,offset_y)) != None
+    
 def main():
     run = True
     FPS = 60
