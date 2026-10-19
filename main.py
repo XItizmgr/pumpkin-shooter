@@ -11,10 +11,18 @@ pygame.display.set_caption("Pumpkin shooter")
 
 # load images
 BULLET = pygame.image.load("assets/bullet.png").convert_alpha()
-SHOOTER = pygame.transform.scale(pygame.image.load("assets/shooter.png").convert_alpha(), (60, 50))
-PUMPKIN = pygame.image.load("assets/pumpkin.png").convert_alpha()
-SHULK = pygame.image.load("assets/pumpkin.png").convert_alpha()
-BG = pygame.transform.scale( pygame.image.load("assets/bg.jpg").convert(), (WIDTH, HEIGHT))
+SHOOTER = pygame.transform.scale(
+    pygame.image.load("assets/shooter.png").convert_alpha(), (60, 50)
+)
+PUMPKIN = pygame.transform.scale(
+    pygame.image.load("assets/pumpkin.png").convert_alpha(), (60, 50)
+)
+SHULK = pygame.image.load("assets/shulk.png").convert_alpha()
+BONE = pygame.image.load("assets/bones.png").convert_alpha()
+
+BG = pygame.transform.scale(
+    pygame.image.load("assets/bg.jpg").convert(), (WIDTH, HEIGHT)
+)
 
 
 class Ship:
@@ -44,22 +52,38 @@ class Player(Ship):
         self.mask = pygame.mask.from_surface(self.img)
         self.health = health
 
+
 class Enemy(Ship):
     def __init__(self, x, y, health=100):
-        super().__init__(x, y, health,)
+        super().__init__(
+            x,
+            y,
+            health,
+        )
         self.img = PUMPKIN
-        self.bullet = random.choice(SHULK,BULLET)
+        self.bullet = random.choice([SHULK, BULLET, BONE])
         self.mask = pygame.mask.from_surface(self.img)
+
+    def move(self, vel):
+        self.y += vel
+
+
 def main():
     run = True
     FPS = 60
     clock = pygame.time.Clock()
-    Level = 1
+    Level = 0
     Lives = 3
     main_font = pygame.font.SysFont("comicsans", 40)
+    lost_font = pygame.font.SysFont("comicsans", 100)
     ghost = Player(300, 530)
     ghost_vel = 5
-    
+
+    enemy_vel = 1
+    wave_length = 3
+    enemies = []
+    lost = False
+    lost_count = 0
 
     def draw():
         WINDOW.blit(BG, (0, 0))
@@ -69,12 +93,37 @@ def main():
 
         WINDOW.blit(lives_txt, (10, 10))
         WINDOW.blit(Level_txt, (WIDTH - Level_txt.get_width() - 10, 10))
+
+        for enemy in enemies:
+            enemy.draw(WINDOW)
         ghost.draw(WINDOW)
-        
+        if lost:
+            lost_txt = lost_font.render("You lost !!", 1, "red")
+            WINDOW.blit(lost_txt, (WIDTH / 2 - lost_txt.get_width() / 2, HEIGHT / 2))
         pygame.display.update()
 
     while run:
         clock.tick(FPS)
+
+        draw()
+        if Lives <= 0 or ghost.health <= 0:
+            lost = True
+            lost_count += 1
+
+        if lost:
+            if lost_count > FPS * 2:
+                run = False
+            else:
+                continue
+
+        if len(enemies) == 0:
+            Level += 1
+            wave_length += 5
+            for _ in range(wave_length):
+                enemy = Enemy(
+                    random.randrange(30, WIDTH - 100), random.randrange(-500, -50)
+                )
+                enemies.append(enemy)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
@@ -82,13 +131,22 @@ def main():
         keys = pygame.key.get_pressed()
         if (keys[pygame.K_a] or keys[pygame.K_LEFT]) and ghost.x - ghost_vel > 0:
             ghost.x -= ghost_vel
-        if (keys[pygame.K_d] or keys[pygame.K_RIGHT]) and ghost.x + ghost_vel +ghost.get_width() < WIDTH:
+        if (
+            keys[pygame.K_d] or keys[pygame.K_RIGHT]
+        ) and ghost.x + ghost_vel + ghost.get_width() < WIDTH:
             ghost.x += ghost_vel
-        if (keys[pygame.K_w] or keys[pygame.K_UP]) and ghost.y - ghost_vel  > 0:
+        if (keys[pygame.K_w] or keys[pygame.K_UP]) and ghost.y - ghost_vel > 0:
             ghost.y -= ghost_vel
-        if (keys[pygame.K_s] or keys[pygame.K_DOWN]) and ghost.y + ghost_vel + ghost.get_height() < HEIGHT:
+        if (
+            keys[pygame.K_s] or keys[pygame.K_DOWN]
+        ) and ghost.y + ghost_vel + ghost.get_height() < HEIGHT:
             ghost.y += ghost_vel
-        draw()
+
+        for enemy in enemies[:]:
+            enemy.move(enemy_vel)
+            if enemy.y + enemy.get_height() > HEIGHT:
+                Lives -= 1
+                enemies.remove(enemy)
 
 
 main()
