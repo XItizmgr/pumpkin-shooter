@@ -30,6 +30,7 @@ BG = pygame.transform.scale(
     pygame.image.load("assets/bg.jpg").convert(), (WIDTH, HEIGHT)
 )
 
+
 class Bullet:
     def __init__(self, x, y, img):
         self.x = x
@@ -189,6 +190,7 @@ def main():
     lost = False
     lost_count = 0
 
+    # restart_button = pygame.Rect(WIDTH // 2 - 120, HEIGHT // 2 + 80, 240, 60)
     player_bullet_vel = -7
     enemy_bullet_vel = 4
 
@@ -209,25 +211,35 @@ def main():
         ghost.draw(WINDOW)
 
         if lost:
-            lost_txt = lost_font.render("You lost !", True, "red")
+            lost_txt = lost_font.render("GAME OVER", True, "red")
+            restart_txt = main_font.render("PRESS R TO RESTART", True, "white")
 
             WINDOW.blit(
-                lost_txt,
-                (
-                    WIDTH // 2 - lost_txt.get_width() // 2,
-                    HEIGHT // 2 - lost_txt.get_height() // 2,
-                ),
+                lost_txt, lost_txt.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 50))
+            )
+
+            WINDOW.blit(
+                restart_txt, restart_txt.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 50))
             )
 
         pygame.display.update()
 
     while run:
         clock.tick(FPS)
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_r and lost:
+                    Level = 0
+                    Lives = 3
+                    wave_length = 3
+                    enemies = []
 
+                    ghost = Player(300, 530)
+
+                    lost = False
+                    lost_count = 0
         if not run:
             break
 
@@ -235,12 +247,7 @@ def main():
             lost = True
 
         if lost:
-            lost_count += 1
             draw()
-
-            if lost_count > FPS * 2:
-                run = False
-
             continue
 
         if len(enemies) == 0:
