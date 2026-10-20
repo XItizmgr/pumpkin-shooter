@@ -1,5 +1,5 @@
-# pumkin Shooter
-Pumkin Shooter is a small shooting game where u have to shoot coming  pumpkin and dodge it's bullet as u shoot. The longer u stay alive the more enemy(pumpkin ) will spawn and shoot u . HEHEHE try to survive more then 3 level.(challange)
+# pumpkin Shooter
+Pumpkin Shooter is a small shooting game where u have to shoot coming  pumpkin and dodge it's bullet as u shoot. The longer u stay alive the more enemy(pumpkin ) will spawn and shoot u . HEHEHE try to survive more then 3 level.(challange)
 
 ![alt text](<Screenshot 2026-10-20 213446.png>)
 
@@ -21,8 +21,8 @@ U can use Arrow key Or AWSD to move and space to shoot
 
 # Tech stack
 - python
-- pygame(the main library used to make the game)
-- pygbag(used for making the pygame's game playable in web)
+- pygame (the main library used to make the game)
+- pygbag (used for making the pygame's game playable in web)
 
 # Running game 
 ### THere are two ways to run pumpkin shooter:
