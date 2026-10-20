@@ -1,11 +1,11 @@
-# pumkine Shooter
-A small shooting game where u have to shoot coming  pumpkin and dodge it's bullet also as u shoot. the longer u stay alive the more enemy(pumpkin ) will spawn and shoot u . HEHEHE try to survive more then 3 level.(challange)
+# pumkin Shooter
+Pumkin Shooter is a small shooting game where u have to shoot coming  pumpkin and dodge it's bullet as u shoot. The longer u stay alive the more enemy(pumpkin ) will spawn and shoot u . HEHEHE try to survive more then 3 level.(challange)
 
 ![alt text](<Screenshot 2026-10-20 213446.png>)
 
 ## About the game
 
-Pumkine shooter is a mini python game made using pygame where u control a ghost and shoot pumpkin that are falling and shooting u as well and in that situiation u have to survive u will get 3 lives and 100 hp.
+Pumkine shooter is a mini python game made using python's pyame library. Where u control a ghost using ur ASDW key  and shoot pumpkin that are falling and shooting u as well and in that situiation u have to survive u will get 3 lives and 100 hp.
 
 10 hp will deduct every time u get shoot by pumpkin after loosing all 100 hp u will lose.
 
@@ -35,15 +35,15 @@ U can use Arrow key Or AWSD to move and space to shoot
 ### Clone the repository
 
 ```bash
-git clone <https://github.com/XItizmgr/pumpkin-shooter>
+git clone https://github.com/XItizmgr/pumpkin-shooter
 cd "Pumkine Shooter"
 ```
 
 ### 2. Create and activate a virtual environment (optional)
 
-```powershell
+```bash
 python -m venv venv
-.\venv\Scripts\Activate.ps1
+.\venv\Scripts\Activate
 ```
 
 ###  Install the dependencies
