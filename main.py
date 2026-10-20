@@ -39,7 +39,7 @@ class Bullet:
         self.y += vel
 
     def off_screen(self, height):
-        return self.y <= height and self.y >= 0
+        return self.y + self.img.get_height() < 0 or self.y > height
 
     def collision(self, obj):
         return is_collide(obj, self)
@@ -59,14 +59,15 @@ class Ship:
 
     def shoot(self):
         if self.coolDown == 0:
-            bullet = Bullet(self.x, self.y, self.bullet_img)
+            bullet_x = self.x + self.get_width() // 2 - self.bullet_img.get_width() // 2
+            bullet = Bullet(bullet_x, self.y, self.bullet_img)
             self.bullets.append(bullet)
             self.coolDown = 1
 
     def draw(self, window):
         window.blit(self.img, (self.x, self.y))
         for bullet in self.bullets:
-            bullet.draw()
+            bullet.draw(window)
 
     def get_width(self):
         return self.img.get_width()
@@ -74,8 +75,8 @@ class Ship:
     def get_height(self):
         return self.img.get_height()
 
-    def move_bullets(self, vel,obj):
-        self.coolDown()
+    def move_bullets(self, vel, obj):
+        self.cooldown()
         for bullet in self.bullets[:]:
             bullet.move(vel)
             if bullet.off_screen(HEIGHT):
@@ -83,7 +84,6 @@ class Ship:
             elif bullet.collision(obj):
                 obj.health -= 10
                 self.bullets.remove(bullet)
-                
 
     def cooldown(self):
         if self.coolDown >= self.COOLDOWN:
@@ -96,22 +96,25 @@ class Player(Ship):
     def __init__(self, x, y, health=100):
         super().__init__(x, y, health)
         self.img = SHOOTER
-        self.bullet = BULLET
+        self.bullet_img = BULLET
         self.mask = pygame.mask.from_surface(self.img)
         self.health = health
-    
-    def move_bullets(self, vel,objs):
-        self.coolDown()
+
+    def move_bullets(self, vel, objs):
+        self.cooldown()
+
         for bullet in self.bullets[:]:
             bullet.move(vel)
+
             if bullet.off_screen(HEIGHT):
                 self.bullets.remove(bullet)
-            else:
-                for obj in objs:   
-                    if bullet.collision(obj):
-                        objs.remove(obj)
-                        self.bullets.remove(bullet)
-                
+                continue
+
+        for obj in objs[:]:
+            if bullet.collision(obj):
+                objs.remove(obj)
+                self.bullets.remove(bullet)
+                break
 
 class Enemy(Ship):
     def __init__(self, x, y, health=100):
@@ -123,10 +126,19 @@ class Enemy(Ship):
         self.img = PUMPKIN
         self.bullet_img = random.choice([SHULK, BULLET, BONE])
         self.mask = pygame.mask.from_surface(self.img)
+        self.next_shot = pygame.time.get_ticks() + random.randint(2000, 6000)
 
     def move(self, vel):
         self.y += vel
 
+    def shoot(self):
+        if self.coolDown == 0:
+            bullet_x = self.x + self.get_width() // 2 - self.bullet_img.get_width() // 2
+            bullet_y = self.y + self.get_height()
+
+            bullet = Bullet(bullet_x, bullet_y, self.bullet_img)
+            self.bullets.append(bullet)
+            self.coolDown = 1
 
 def is_collide(obj1, obj2):
     offset_x = obj2.x - obj1.x
@@ -212,7 +224,7 @@ def main():
         ) and ghost.y + ghost_vel + ghost.get_height() < HEIGHT:
             ghost.y += ghost_vel
         if keys[pygame.K_SPACE]:
-            Player.shoot()
+            ghost.shoot()
 
         for enemy in enemies[:]:
             enemy.move(enemy_vel)
