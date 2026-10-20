@@ -1,5 +1,6 @@
 import pygame
 import random
+import asyncio
 
 pygame.init()
 pygame.font.init()
@@ -168,7 +169,7 @@ def is_collide(obj1, obj2):
     return obj1.mask.overlap(obj2.mask, (offset_x, offset_y)) is not None
 
 
-def main():
+async def main():
     run = True
 
     FPS = 60
@@ -211,8 +212,8 @@ def main():
         ghost.draw(WINDOW)
 
         if lost:
-            lost_txt = lost_font.render("GAME OVER", True, "red")
-            restart_txt = main_font.render("PRESS R TO RESTART", True, "white")
+            lost_txt = lost_font.render("GAME OVER !", True, "red")
+            restart_txt = main_font.render("Press R to Restart", True, "white")
 
             WINDOW.blit(
                 lost_txt, lost_txt.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 50))
@@ -226,6 +227,7 @@ def main():
 
     while run:
         clock.tick(FPS)
+        await asyncio.sleep(0)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
@@ -305,4 +307,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
