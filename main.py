@@ -9,20 +9,26 @@ HEIGHT = 800
 
 WINDOW = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Pumpkin shooter")
-BULLET = pygame.image.load("assets/bullet.png").convert_alpha()
+
+BULLET = pygame.transform.scale(
+    pygame.image.load("assets/bullet.png").convert_alpha(), (12, 24)
+)
 SHOOTER = pygame.transform.scale(
     pygame.image.load("assets/shooter.png").convert_alpha(), (60, 50)
 )
 PUMPKIN = pygame.transform.scale(
     pygame.image.load("assets/pumpkin.png").convert_alpha(), (60, 50)
 )
-SHULK = pygame.image.load("assets/shulk.png").convert_alpha()
-BONE = pygame.image.load("assets/bones.png").convert_alpha()
+SHULK = pygame.transform.scale(
+    pygame.image.load("assets/shulk.png").convert_alpha(), (20, 20)
+)
+BONE = pygame.transform.scale(
+    pygame.image.load("assets/bones.png").convert_alpha(), (20, 20)
+)
 
 BG = pygame.transform.scale(
     pygame.image.load("assets/bg.jpg").convert(), (WIDTH, HEIGHT)
 )
-
 
 class Bullet:
     def __init__(self, x, y, img):
@@ -61,8 +67,9 @@ class Ship:
     def shoot(self):
         if self.coolDown == 0:
             bullet_x = self.x + self.get_width() // 2 - self.bullet_img.get_width() // 2
+            bullet_y = self.y - self.bullet_img.get_height()
 
-            bullet = Bullet(bullet_x, self.y, self.bullet_img)
+            bullet = Bullet(bullet_x, bullet_y, self.bullet_img)
 
             self.bullets.append(bullet)
             self.coolDown = 1
@@ -133,10 +140,10 @@ class Enemy(Ship):
 
         self.img = PUMPKIN
 
-        self.bullet_img = random.choice([SHULK, BULLET, BONE])
+        self.bullet_img = random.choice([SHULK, BONE])
 
         self.mask = pygame.mask.from_surface(self.img)
-        self.next_shot = pygame.time.get_ticks() + random.randint(2000, 6000)
+        self.next_shot = None
 
     def move(self, vel):
         self.y += vel
@@ -189,15 +196,11 @@ def main():
         WINDOW.blit(BG, (0, 0))
 
         lives_txt = main_font.render(f"lives: {Lives}", True, "white")
-
         level_txt = main_font.render(f"level: {Level}", True, "white")
-
         health_txt = main_font.render(f"Health: {max(0, ghost.health)}", True, "white")
 
         WINDOW.blit(lives_txt, (10, 10))
-
         WINDOW.blit(level_txt, (WIDTH - level_txt.get_width() - 10, 10))
-
         WINDOW.blit(health_txt, (10, 55))
 
         for enemy in enemies:
@@ -206,7 +209,7 @@ def main():
         ghost.draw(WINDOW)
 
         if lost:
-            lost_txt = lost_font.render("You lost !!", True, "red")
+            lost_txt = lost_font.render("You lost !", True, "red")
 
             WINDOW.blit(
                 lost_txt,
@@ -227,6 +230,7 @@ def main():
 
         if not run:
             break
+
         if Lives <= 0 or ghost.health <= 0:
             lost = True
 
@@ -274,13 +278,15 @@ def main():
         for enemy in enemies[:]:
             enemy.move(enemy_vel)
 
-            if enemy.y >= 0 and pygame.time.get_ticks() >= enemy.next_shot:
-                enemy.shoot()
+            if enemy.y >= 0:
+                now = pygame.time.get_ticks()
 
-                enemy.next_shot = pygame.time.get_ticks() + random.randint(2000, 6000)
-
+                if enemy.next_shot is None:
+                    enemy.next_shot = now + random.randint(2000, 5000)
+                elif now >= enemy.next_shot:
+                    enemy.shoot()
+                    enemy.next_shot = now + random.randint(2000, 5000)
             enemy.move_bullets(enemy_bullet_vel, ghost)
-
             if enemy.y + enemy.get_height() > HEIGHT:
                 Lives -= 1
                 enemies.remove(enemy)
@@ -289,6 +295,7 @@ def main():
         draw()
 
     pygame.quit()
+
 
 if __name__ == "__main__":
     main()
